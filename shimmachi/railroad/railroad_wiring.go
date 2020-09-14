@@ -3,6 +3,8 @@ package railroad
 import (
 	"errors"
 	"fmt"
+
+	"./direction"
 )
 
 const (
@@ -30,7 +32,7 @@ func (rw *RailroadWiring) IsInRange(speed int) bool {
 
 // 速さを変更する
 func (rw *RailroadWiring) ChangeSpeed(trackNumber, newSpeed int) error {
-	// エラーメッセージ
+	// エラー処理
 	if !rw.IsIn(trackNumber) {
 		errmsg := fmt.Sprintf("Illegal track number: %d.", trackNumber)
 		return errors.New(errmsg)
@@ -41,6 +43,21 @@ func (rw *RailroadWiring) ChangeSpeed(trackNumber, newSpeed int) error {
 	}
 
 	rw.Tracks[trackNumber].ChangeSpeed(newSpeed)
+	return nil
+}
+
+// 方向を変更する
+func (rw *RailroadWiring) ChangeDirection(
+	trackNumber int,
+	newState direction.DirectionState,
+) error {
+	// エラー処理
+	if !rw.IsIn(trackNumber) {
+		errmsg := fmt.Sprintf("Illegal track number :%d.", trackNumber)
+		return errors.New(errmsg)
+	}
+
+	rw.Tracks[trackNumber].ChangeDirection(newState)
 	return nil
 }
 
