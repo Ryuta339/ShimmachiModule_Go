@@ -15,7 +15,10 @@ type CuiDisplay struct {
 	writer io.Writer
 }
 
-func (cd *CuiDisplay) Update(wiring *railroad.RailroadWiring) {
+func (cd *CuiDisplay) Update(
+	wiring *railroad.RailroadWiring,
+	event railroad.Event,
+) {
 	fmt.Fprintln(cd.writer, wiring.ToString())
 }
 

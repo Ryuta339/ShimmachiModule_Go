@@ -20,7 +20,7 @@ func ExampleCuiDisplay() {
 
 	display = NewCuiDisplay(os.Stdout)
 	wiring.AddListener(display)
-	wiring.NotifyListeners()
+	wiring.NotifyListeners(railroad.NewNullEvent(nil))
 	// Output:
 	// Track no. 1
 	// 	Direction: Stop
