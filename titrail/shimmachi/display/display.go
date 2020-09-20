@@ -1,4 +1,4 @@
-package commands
+package display
 
 import (
 	"fmt"
