@@ -12,8 +12,10 @@ const (
 )
 
 type RailroadWiring struct {
+	Tracks []*Track
+
+	// Has unexported fields
 	listeners []RailroadWiringListener
-	Tracks    []*Track
 }
 
 // リスナーを追加
@@ -39,13 +41,14 @@ func (rw *RailroadWiring) RemoveListener(listener RailroadWiringListener) error 
 	// 該当要素を削除
 	rw.listeners[idx] = rw.listeners[len(rw.listeners)-1]
 	rw.listeners = rw.listeners[:len(rw.listeners)-1]
+
 	return nil // 成功
 }
 
 // リスナーに通知
-func (rw *RailroadWiring) NotifyListeners() {
+func (rw *RailroadWiring) NotifyListeners(event Event) {
 	for _, v := range rw.listeners {
-		v.Update(rw)
+		v.Update(rw, event)
 	}
 }
 

@@ -1,6 +1,7 @@
 package railroad
 
 import (
+	"errors"
 	"strconv"
 
 	"./direction"
@@ -10,8 +11,43 @@ type Track struct {
 	Index int
 
 	// Has unexported fields
-	speed int
-	state direction.DirectionState
+	speed     int
+	state     direction.DirectionState
+	listeners []TrackListener
+}
+
+// リスナーを追加
+func (t *Track) AddListener(listener TrackListener) {
+	t.listeners = append(t.listeners, listener)
+}
+
+// リスナーを削除
+func (t *Track) RemoveListener(listener TrackListener) error {
+	idx := -1
+	// 該当するリスナーを探索
+	for i, v := range t.listeners {
+		if listener == v {
+			idx = i
+			break
+		}
+	}
+	if idx == -1 {
+		// 該当するリスナーが存在しない
+		return errors.New("No such listener.")
+	}
+
+	// 該当要素を成功
+	t.listeners[idx] = t.listeners[len(t.listeners)-1]
+	t.listeners = t.listeners[:len(t.listeners)-1]
+
+	return nil // 成功
+}
+
+// リスナーに追加
+func (t *Track) NotifyListeners(event Event) {
+	for _, v := range t.listeners {
+		v.Update(t, event)
+	}
 }
 
 // 速さを変更する
