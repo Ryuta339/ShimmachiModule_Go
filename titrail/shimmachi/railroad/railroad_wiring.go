@@ -12,7 +12,7 @@ const (
 )
 
 type RailroadWiring struct {
-	Tracks []*Track
+	Tracks []Track
 
 	// Has unexported fields
 	listeners []RailroadWiringListener
@@ -53,7 +53,7 @@ func (rw *RailroadWiring) NotifyListeners(event Event) {
 }
 
 // 線路を追加
-func (rw *RailroadWiring) AddTrack(track *Track) {
+func (rw *RailroadWiring) AddTrack(track Track) {
 	rw.Tracks = append(rw.Tracks, track)
 }
 
@@ -112,7 +112,7 @@ func (rw *RailroadWiring) ToString() string {
 
 // コンストラクタ
 func NewRailroadWiring() *RailroadWiring {
-	tracks := make([]*Track, 0, 10)
+	tracks := make([]Track, 0, 10)
 	return &RailroadWiring{
 		Tracks: tracks,
 	}

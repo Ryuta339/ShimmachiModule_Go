@@ -5,5 +5,5 @@ type RailroadWiringListener interface {
 }
 
 type TrackListener interface {
-	Update(track *Track, event Event)
+	UpdateTrack(event Event)
 }

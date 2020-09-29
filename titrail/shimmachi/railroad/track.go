@@ -4,25 +4,27 @@ import (
 	"errors"
 	"strconv"
 
+	"../util"
 	"./direction"
 )
 
-type Track struct {
-	Index int
+type TrackListenee interface {
+	AddListener(listener TrackListener)
+	RemoveListener(listener TrackListener) error
+	NotifyListeners(event Event)
+}
 
-	// Has unexported fields
-	speed     int
-	state     direction.DirectionState
+type SimpleTrackListenee struct {
 	listeners []TrackListener
 }
 
 // リスナーを追加
-func (t *Track) AddListener(listener TrackListener) {
+func (t *SimpleTrackListenee) AddListener(listener TrackListener) {
 	t.listeners = append(t.listeners, listener)
 }
 
 // リスナーを削除
-func (t *Track) RemoveListener(listener TrackListener) error {
+func (t *SimpleTrackListenee) RemoveListener(listener TrackListener) error {
 	idx := -1
 	// 該当するリスナーを探索
 	for i, v := range t.listeners {
@@ -44,26 +46,56 @@ func (t *Track) RemoveListener(listener TrackListener) error {
 }
 
 // リスナーに追加
-func (t *Track) NotifyListeners(event Event) {
+func (t *SimpleTrackListenee) NotifyListeners(event Event) {
 	for _, v := range t.listeners {
-		v.Update(t, event)
+		v.UpdateTrack(event)
 	}
 }
 
+func NewSimpleTrackListenee() *SimpleTrackListenee {
+	return &SimpleTrackListenee{listeners: make([]TrackListener, 0, 10)}
+}
+
+// 番線の基底クラス
+// パワーユニットを実装したもの
+type Track interface {
+	TrackListenee
+	ChangeableSpeed
+	ChangeableDirection
+	util.Stringify
+
+	GetIndex() int
+}
+
+type SimpleTrack struct {
+	*SimpleTrackListenee
+
+	Index int
+
+	// Has unexported fields
+	speed int
+	state direction.DirectionState
+}
+
 // 速さを変更する
-func (t *Track) ChangeSpeed(newSpeed int) {
+func (t *SimpleTrack) ChangeSpeed(newSpeed int) {
 	t.speed = newSpeed
 }
 
 // 方向を変更する
 // 方向変更時に一旦速さをゼロにする
-func (t *Track) ChangeDirection(newState direction.DirectionState) {
+func (t *SimpleTrack) ChangeDirection(newState direction.DirectionState) {
 	t.ChangeSpeed(0)
 	t.state = newState
 }
 
+// 通し番号を取得する
+func (t *SimpleTrack) GetIndex() int {
+	return t.Index
+}
+
 // 文字列化
-func (t *Track) ToString() string {
+func (t *SimpleTrack) ToString() string {
 	m := make([]byte, 0, 128)
 	m = append(m, "Track no. "...)
 	m = append(m, strconv.Itoa(t.Index)...)
@@ -74,10 +106,11 @@ func (t *Track) ToString() string {
 	return string(m)
 }
 
-func NewTrack(index int) *Track {
-	return &Track{
-		Index: index,
-		speed: 0,
-		state: direction.GetStopInstance(),
+func NewTrack(index int) Track {
+	return &SimpleTrack{
+		SimpleTrackListenee: NewSimpleTrackListenee(),
+		Index:               index,
+		speed:               0,
+		state:               direction.GetStopInstance(),
 	}
 }
