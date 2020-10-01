@@ -11,20 +11,23 @@ const (
 	MAX_SPEED = 100
 )
 
-type RailroadWiring struct {
-	Tracks []Track
+type RailroadWiringListenee interface {
+	AddListener(RailroadWiringListener)
+	RemoveListener(RailroadWiringListener) error
+	NotifyListeners(Event)
+}
 
-	// Has unexported fields
+type SimpleRailroadWiringListenee struct {
 	listeners []RailroadWiringListener
 }
 
 // リスナーを追加
-func (rw *RailroadWiring) AddListener(listener RailroadWiringListener) {
+func (rw *SimpleRailroadWiringListenee) AddListener(listener RailroadWiringListener) {
 	rw.listeners = append(rw.listeners, listener)
 }
 
 // リスナーを削除
-func (rw *RailroadWiring) RemoveListener(listener RailroadWiringListener) error {
+func (rw *SimpleRailroadWiringListenee) RemoveListener(listener RailroadWiringListener) error {
 	idx := -1
 	// 該当するリスナーを探索
 	for i, v := range rw.listeners {
@@ -46,10 +49,20 @@ func (rw *RailroadWiring) RemoveListener(listener RailroadWiringListener) error 
 }
 
 // リスナーに通知
-func (rw *RailroadWiring) NotifyListeners(event Event) {
+func (rw *SimpleRailroadWiringListenee) NotifyListeners(event Event) {
 	for _, v := range rw.listeners {
 		v.Update(rw, event)
 	}
+}
+
+func NewSimpleRailroadWiringListenee() *SimpleRailroadWiringListenee {
+	return &SimpleRailroadWiringListenee{listeners: make([]RailroadWiringListener, 0, 10)}
+}
+
+type RailroadWiring struct {
+	Tracks []Track
+
+	// Has unexported fields
 }
 
 // 線路を追加

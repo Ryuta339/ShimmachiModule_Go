@@ -9,9 +9,9 @@ import (
 )
 
 type TrackListenee interface {
-	AddListener(listener TrackListener)
-	RemoveListener(listener TrackListener) error
-	NotifyListeners(event Event)
+	AddListener(TrackListener)
+	RemoveListener(TrackListener) error
+	NotifyListeners(Event)
 }
 
 type SimpleTrackListenee struct {
