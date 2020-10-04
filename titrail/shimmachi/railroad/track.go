@@ -12,6 +12,8 @@ type TrackListenee interface {
 	AddListener(TrackListener)
 	RemoveListener(TrackListener) error
 	NotifyListeners(Event)
+	WillChange()
+	Changed()
 }
 
 // 番線の基底インターフェース
@@ -33,6 +35,7 @@ type SimpleTrack struct {
 	speed     int
 	state     direction.DirectionState
 	listeners []TrackListener
+	depth     int
 }
 
 // リスナーを追加
@@ -62,23 +65,41 @@ func (t *SimpleTrack) RemoveListener(listener TrackListener) error {
 	return nil // 成功
 }
 
-// リスナーに追加
+// リスナーに通知
 func (t *SimpleTrack) NotifyListeners(event Event) {
-	for _, v := range t.listeners {
-		v.UpdateTrack(event)
+	if t.depth == 1 {
+		for _, v := range t.listeners {
+			v.UpdateTrack(event)
+		}
 	}
+}
+
+// 設定変更前
+func (t *SimpleTrack) WillChange() {
+	t.depth++
+}
+
+// 設定変更後
+func (t *SimpleTrack) Changed() {
+	t.depth--
 }
 
 // 速さを変更する
 func (t *SimpleTrack) ChangeSpeed(newSpeed int) {
+	t.WillChange()
+	defer t.Changed()
 	t.speed = newSpeed
+	t.NotifyListeners(NewChangeSpeedEvent(t))
 }
 
 // 方向を変更する
 // 方向変更時に一旦速さをゼロにする
 func (t *SimpleTrack) ChangeDirection(newState direction.DirectionState) {
+	t.WillChange()
+	defer t.Changed()
 	t.ChangeSpeed(0)
 	t.state = newState
+	t.NotifyListeners(NewChangeDirectionEvent(t))
 }
 
 // 通し番号を取得する
@@ -104,5 +125,6 @@ func NewSimpleTrack(index int) Track {
 		speed:     0,
 		state:     direction.GetStopInstance(),
 		listeners: make([]TrackListener, 0, 10),
+		depth:     0,
 	}
 }

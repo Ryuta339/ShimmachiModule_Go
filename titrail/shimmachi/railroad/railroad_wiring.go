@@ -116,10 +116,12 @@ func (rw *SimpleRailroadWiring) ChangeDirection(
 func (rw *SimpleRailroadWiring) ToString() string {
 	m := make([]byte, 0, 2048)
 
+	m = append(m, "================================\n"...)
 	for _, v := range rw.Tracks {
 		m = append(m, v.ToString()...)
 		m = append(m, '\n')
 	}
+	m = append(m, "================================\n"...)
 
 	return string(m)
 }

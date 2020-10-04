@@ -52,6 +52,7 @@ func ExampleRailroadWiring() {
 
 	fmt.Printf("%s", wiring.ToString())
 	// Output:
+	// ================================
 	// Track no. 1
 	// 	Direction: Left
 	// 	Speed: 50
@@ -61,6 +62,8 @@ func ExampleRailroadWiring() {
 	// Track no. 3
 	// 	Direction: Right
 	// 	Speed: 100
+	// ================================
+	// ================================
 	// Track no. 1
 	// 	Direction: Stop
 	// 	Speed: 0
@@ -70,4 +73,5 @@ func ExampleRailroadWiring() {
 	// Track no. 3
 	// 	Direction: Right
 	// 	Speed: 100
+	// ================================
 }
