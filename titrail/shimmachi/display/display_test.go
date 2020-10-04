@@ -2,6 +2,7 @@ package display
 
 import (
 	"../railroad"
+	"../railroad/direction"
 )
 
 const (
@@ -18,11 +19,12 @@ func ExampleCuiDisplay() {
 		track.AddListener(display)
 		wiring.AddTrack(track)
 	}
+	wiring.ChangeDirection(0, direction.GetLeftInstance())
 
-	// wiring.Tracks[0].NotifyListeners(railroad.NewNullEvent(nil))
 	// Output:
+	// ================================
 	// Track no. 1
-	// 	Direction: Stop
+	// 	Direction: Left
 	// 	Speed: 0
 	// Track no. 2
 	// 	Direction: Stop
@@ -30,5 +32,6 @@ func ExampleCuiDisplay() {
 	// Track no. 3
 	// 	Direction: Stop
 	// 	Speed: 0
+	// ================================
 	//
 }
