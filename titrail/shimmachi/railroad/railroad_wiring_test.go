@@ -9,7 +9,7 @@ import (
 func ExampleRailroadWiring() {
 	wiring := NewSimpleRailroadWiring()
 	for idx := 0; idx < 3; idx++ {
-		wiring.AddTrack(NewTrack(idx + 1))
+		wiring.AddTrack(NewSimpleTrack(idx + 1))
 	}
 
 	err := wiring.ChangeDirection(0, direction.GetLeftInstance())

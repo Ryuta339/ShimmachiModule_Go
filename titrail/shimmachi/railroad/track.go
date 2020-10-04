@@ -98,7 +98,7 @@ func (t *SimpleTrack) ToString() string {
 	return string(m)
 }
 
-func NewTrack(index int) Track {
+func NewSimpleTrack(index int) Track {
 	return &SimpleTrack{
 		Index:     index,
 		speed:     0,
