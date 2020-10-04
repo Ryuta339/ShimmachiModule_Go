@@ -7,7 +7,7 @@ import (
 )
 
 func ExampleRailroadWiring() {
-	wiring := NewRailroadWiring()
+	wiring := NewSimpleRailroadWiring()
 	for idx := 0; idx < 3; idx++ {
 		wiring.AddTrack(NewTrack(idx + 1))
 	}

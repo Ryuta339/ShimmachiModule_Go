@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"../util"
 	"./direction"
 )
 
@@ -17,17 +18,27 @@ type RailroadWiringListenee interface {
 	NotifyListeners(Event)
 }
 
-type SimpleRailroadWiringListenee struct {
+// 操作盤の基底インターフェース
+type RailroadWiring interface {
+	RailroadWiringListenee
+	TrackOperator
+	util.Stringify
+}
+
+type SimpleRailroadWiring struct {
+	Tracks []Track
+
+	// Has unexported fields
 	listeners []RailroadWiringListener
 }
 
 // リスナーを追加
-func (rw *SimpleRailroadWiringListenee) AddListener(listener RailroadWiringListener) {
+func (rw *SimpleRailroadWiring) AddListener(listener RailroadWiringListener) {
 	rw.listeners = append(rw.listeners, listener)
 }
 
 // リスナーを削除
-func (rw *SimpleRailroadWiringListenee) RemoveListener(listener RailroadWiringListener) error {
+func (rw *SimpleRailroadWiring) RemoveListener(listener RailroadWiringListener) error {
 	idx := -1
 	// 該当するリスナーを探索
 	for i, v := range rw.listeners {
@@ -49,45 +60,35 @@ func (rw *SimpleRailroadWiringListenee) RemoveListener(listener RailroadWiringLi
 }
 
 // リスナーに通知
-func (rw *SimpleRailroadWiringListenee) NotifyListeners(event Event) {
+func (rw *SimpleRailroadWiring) NotifyListeners(event Event) {
 	for _, v := range rw.listeners {
 		v.Update(rw, event)
 	}
 }
 
-func NewSimpleRailroadWiringListenee() *SimpleRailroadWiringListenee {
-	return &SimpleRailroadWiringListenee{listeners: make([]RailroadWiringListener, 0, 10)}
-}
-
-type RailroadWiring struct {
-	Tracks []Track
-
-	// Has unexported fields
-}
-
 // 線路を追加
-func (rw *RailroadWiring) AddTrack(track Track) {
+func (rw *SimpleRailroadWiring) AddTrack(track Track) {
 	rw.Tracks = append(rw.Tracks, track)
 }
 
 // 線路が配線略図にあるかを判定する
-func (rw *RailroadWiring) IsIn(trackNumber int) bool {
+func (rw *SimpleRailroadWiring) IsIn(trackNumber int) bool {
 	return 0 <= trackNumber && trackNumber < len(rw.Tracks)
 }
 
 // 速さが非負かつ上限以下か判定する
-func (rw *RailroadWiring) IsInRange(speed int) bool {
+func (rw *SimpleRailroadWiring) IsSpeedInRange(speed int) bool {
 	return 0 <= speed && speed <= MAX_SPEED
 }
 
 // 速さを変更する
-func (rw *RailroadWiring) ChangeSpeed(trackNumber, newSpeed int) error {
+func (rw *SimpleRailroadWiring) ChangeSpeed(trackNumber, newSpeed int) error {
 	// エラー処理
 	if !rw.IsIn(trackNumber) {
 		errmsg := fmt.Sprintf("Illegal track number: %d.", trackNumber)
 		return errors.New(errmsg)
 	}
-	if !rw.IsInRange(newSpeed) {
+	if !rw.IsSpeedInRange(newSpeed) {
 		errmsg := fmt.Sprintf("Illegal speed: %d.", newSpeed)
 		return errors.New(errmsg)
 	}
@@ -97,7 +98,7 @@ func (rw *RailroadWiring) ChangeSpeed(trackNumber, newSpeed int) error {
 }
 
 // 方向を変更する
-func (rw *RailroadWiring) ChangeDirection(
+func (rw *SimpleRailroadWiring) ChangeDirection(
 	trackNumber int,
 	newState direction.DirectionState,
 ) error {
@@ -112,7 +113,7 @@ func (rw *RailroadWiring) ChangeDirection(
 }
 
 // 文字列化
-func (rw *RailroadWiring) ToString() string {
+func (rw *SimpleRailroadWiring) ToString() string {
 	m := make([]byte, 0, 2048)
 
 	for _, v := range rw.Tracks {
@@ -124,9 +125,9 @@ func (rw *RailroadWiring) ToString() string {
 }
 
 // コンストラクタ
-func NewRailroadWiring() *RailroadWiring {
+func NewSimpleRailroadWiring() RailroadWiring {
 	tracks := make([]Track, 0, 10)
-	return &RailroadWiring{
+	return &SimpleRailroadWiring{
 		Tracks: tracks,
 	}
 }

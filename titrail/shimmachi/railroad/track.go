@@ -14,17 +14,34 @@ type TrackListenee interface {
 	NotifyListeners(Event)
 }
 
-type SimpleTrackListenee struct {
+// 番線の基底インターフェース
+// パワーユニットを実装したもの
+type Track interface {
+	TrackListenee
+	util.Stringify
+
+	ChangeSpeed(int)
+	ChangeDirection(direction.DirectionState)
+	GetIndex() int
+}
+
+// 番線の単純な実装構造体
+type SimpleTrack struct {
+	Index int
+
+	// Has unexported fields
+	speed     int
+	state     direction.DirectionState
 	listeners []TrackListener
 }
 
 // リスナーを追加
-func (t *SimpleTrackListenee) AddListener(listener TrackListener) {
+func (t *SimpleTrack) AddListener(listener TrackListener) {
 	t.listeners = append(t.listeners, listener)
 }
 
 // リスナーを削除
-func (t *SimpleTrackListenee) RemoveListener(listener TrackListener) error {
+func (t *SimpleTrack) RemoveListener(listener TrackListener) error {
 	idx := -1
 	// 該当するリスナーを探索
 	for i, v := range t.listeners {
@@ -46,35 +63,10 @@ func (t *SimpleTrackListenee) RemoveListener(listener TrackListener) error {
 }
 
 // リスナーに追加
-func (t *SimpleTrackListenee) NotifyListeners(event Event) {
+func (t *SimpleTrack) NotifyListeners(event Event) {
 	for _, v := range t.listeners {
 		v.UpdateTrack(event)
 	}
-}
-
-func NewSimpleTrackListenee() *SimpleTrackListenee {
-	return &SimpleTrackListenee{listeners: make([]TrackListener, 0, 10)}
-}
-
-// 番線の基底クラス
-// パワーユニットを実装したもの
-type Track interface {
-	TrackListenee
-	ChangeableSpeed
-	ChangeableDirection
-	util.Stringify
-
-	GetIndex() int
-}
-
-type SimpleTrack struct {
-	*SimpleTrackListenee
-
-	Index int
-
-	// Has unexported fields
-	speed int
-	state direction.DirectionState
 }
 
 // 速さを変更する
@@ -108,9 +100,9 @@ func (t *SimpleTrack) ToString() string {
 
 func NewTrack(index int) Track {
 	return &SimpleTrack{
-		SimpleTrackListenee: NewSimpleTrackListenee(),
-		Index:               index,
-		speed:               0,
-		state:               direction.GetStopInstance(),
+		Index:     index,
+		speed:     0,
+		state:     direction.GetStopInstance(),
+		listeners: make([]TrackListener, 0, 10),
 	}
 }
