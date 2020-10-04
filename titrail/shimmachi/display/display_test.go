@@ -1,8 +1,6 @@
 package display
 
 import (
-	"os"
-
 	"../railroad"
 )
 
@@ -13,14 +11,15 @@ const (
 func ExampleCuiDisplay() {
 	var display Displayable
 
-	wiring := railroad.NewRailroadWiring()
+	wiring := railroad.NewSimpleRailroadWiring()
+	display = NewCuiDisplayWithStdout(wiring)
 	for idx := 0; idx < numTrack; idx++ {
-		wiring.AddTrack(railroad.NewTrack(idx + 1))
+		track := railroad.NewSimpleTrack(idx + 1)
+		track.AddListener(display)
+		wiring.AddTrack(track)
 	}
 
-	display = NewCuiDisplay(os.Stdout)
-	wiring.AddListener(display)
-	wiring.NotifyListeners(railroad.NewNullEvent(nil))
+	// wiring.Tracks[0].NotifyListeners(railroad.NewNullEvent(nil))
 	// Output:
 	// Track no. 1
 	// 	Direction: Stop
